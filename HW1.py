@@ -83,6 +83,82 @@ z = np.arange(1,7,1).reshape(2,3).transpose()
 theta.dot(z)
 
 theta = np.array(np.random.random(size=X.shape[1]))
+import time
+
+def gradient_descent(X, y, theta, alpha, num_iters):
+    """
+    Learn the parameters of the model using gradient descent. Gradient descent
+    is an optimization algorithm used to minimize a (loss) function by 
+    iteratively moving in the direction of steepest descent as defined by the
+    opposite direction of the gradient. Instead of performing a constant number
+    of iterations, stop the training process once the loss improvement from
+    one iteration to the next is smaller than `1e-8`.
+    
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - theta: The parameters (weights) of the model being learned.
+    - alpha: The learning rate of the model.
+    - num_iters: The number of iterations performed.
+
+    Output:
+    - theta: The learned parameters of the model.
+    - J_history: the loss value in each iteration.
+    """
+    
+    J_history = [] # Use a python list to save cost in every iteration
+    ###########################################################################
+    # TODO: Implement the gradient descent optimization algorithm.            #
+    ###########################################################################
+    J_history =  [compute_cost(X, y, theta)]
+    m = X.shape[0]
+    n = X.shape[1]
+    j=0
+    for f in np.arange(num_iters):
+        if j % 18 == 0:
+            j=0
+        theta[j] = theta[j]-(alpha/m)*((theta.dot(X.transpose()) - y)*X[:,j]).sum()
+        MSE =  compute_cost(X, y, theta) 
+        J_history.append(MSE)
+        J_delta = J_history[f] - J_history[f+1] 
+        print(J_delta)
+        if J_delta < 1e-8:
+            break 
+        j=+1
+        
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return theta, J_history
+
+
+num_iters = 40000
+alpha = 0.00000001
+a = np.arange(1,num_iters+1)
+
+np.random.seed(42)
+theta = np.random.random(size=X.shape[1])
+iterations = 40000
+alpha = 0.001
+
+start_time = time.time()
+theta, J_history = gradient_descent(X ,y, theta, alpha, iterations)
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+fig, ax = plt.subplots()
+ax.scatter(np.arange(len(J_history)), np.array(J_history))
+ax.set_xlabel('Iteration')
+ax.set_ylabel("MSE")
+ax.set_title('MSE convergence')
+
+
+
+
+
+
+
+
 
 
 
