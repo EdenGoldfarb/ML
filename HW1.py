@@ -18,16 +18,33 @@ df.describe()
 columns = df.columns
 
 
+price = df['price']
+
+type(price)
 df = df.loc[:,'price':]
-x = np.array(df.loc[:,'bedrooms':])
+X = np.array(df.loc[:,'bedrooms':])
 y = np.array(df['price'])
 type(df)
 
 
+bla = (x[875,0] - x[:,0].min()) / (x[:,0].max()-x[:,0].min())
+bla = x / x.max(axis = 0)
+
+np.where(x[:,0]==x[:,0].min())
+
+def preprocess(X,y):
+    X = (X-X.min(axis = 0)) / (X.max(axis = 0) -X.min(axis = 0))
+    y = (y-y.min())/ (y.max() - y.min())
+    return X,y
+
+test = preprocess(X,y)
 
 
-
-
+fig, ax = plt.subplots()
+ax.scatter(X[:,2], y)
+ax.set_xlabel('Square Feet')
+ax.set_ylabel("Price")
+ax.set_title('Square feet VS Price')
 
 
 
