@@ -13,14 +13,15 @@ df = pd.read_csv('C:\\Users\\goldi\\OneDrive\\Weizmann\\ML\\hw1\\kc_house_data.c
 # df stands for dataframe, which is the default format for datasets in pandas
 
 df.head(n=10)
-df.describe
+df.describe()
+
+columns = df.columns
 
 
-
-
-
-
-
+df = df.loc[:,'price':]
+x = np.array(df.loc[:,'bedrooms':])
+y = np.array(df['price'])
+type(df)
 
 
 
