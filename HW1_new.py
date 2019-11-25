@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -56,7 +55,6 @@ def preprocess(X, y):
     ###########################################################################
     # TODO: Implement Min-Max Scaling.                                        #
     ###########################################################################
-def preprocess(X,y):
     X = (X-X.min(axis = 0)) / (X.max(axis = 0) -X.min(axis = 0))
     y = (y-y.min())/ (y.max() - y.min())
     ###########################################################################
@@ -111,54 +109,6 @@ def compute_cost(X, y, theta):
     ###########################################################################
     return J
 
-def gradient_descent(X, y, theta_rand, alpha, num_iters):
-    """
-    Learn the parameters of the model using gradient descent. Gradient descent
-    is an optimization algorithm used to minimize a (loss) function by 
-    iteratively moving in the direction of steepest descent as defined by the
-    opposite direction of the gradient. Instead of performing a constant number
-    of iterations, stop the training process once the loss improvement from
-    one iteration to the next is smaller than `1e-8`.
-    
-    Input:
-    - X: Inputs  (n features over m instances).
-    - y: True labels (1 value over m instances).
-    - theta: The parameters (weights) of the model being learned.
-    - alpha: The learning rate of the model.
-    - num_iters: The number of iterations performed.
-
-    Output:
-    - theta: The learned parameters of the model.
-    - J_history: the loss value in each iteration.
-    """
-    
-    J_history = [] # Use a python list to save cost in every iteration
-    theta = []
-    ###########################################################################
-    # TODO: Implement the gradient descent optimization algorithm.            #
-    ###########################################################################
-    J_history =  [compute_cost(X, y, theta_rand)]
-    m = X.shape[0]
-    n = X.shape[1]
-    j=0
-    for f in np.arange(num_iters):
-        if j % 18 == 0:
-            j=0
-        theta_rand[j] = theta_rand[j]-(alpha/m)*((theta_rand.dot(X.transpose()) - y)*X[:,j]).sum()
-        MSE =  compute_cost(X, y, theta_rand) 
-        J_history.append(MSE)
-        J_delta = J_history[f] - J_history[f+1] 
-        if J_delta < 1e-8:
-            # print("Bingo" + "- num of iterations",f)
-            break 
-        j=+1
-    theta = np.copy(theta_rand)
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
-    
-    return theta, J_history
-
 def gradient_descent(X, y, theta, alpha, num_iters):
     """
     Learn the parameters of the model using gradient descent. Gradient descent
@@ -186,7 +136,6 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     ###########################################################################
     J_history =  [compute_cost(X, y, theta)]
     m = X.shape[0]
-    n = X.shape[1]
     j=0
     for f in np.arange(num_iters):
         if j % 18 == 0:
@@ -196,7 +145,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         J_history.append(MSE)
         J_delta = J_history[f] - J_history[f+1] 
         if J_delta < 1e-8:
-            print("Bingo" + "- num of iterations",f)
+            #print("Bingo" + "- num of iterations",f)
             break 
         j=+1
     ###########################################################################
@@ -204,6 +153,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     ###########################################################################
     
     return theta, J_history
+
 
 np.random.seed(42)
 theta = np.random.random(size=X.shape[1])
@@ -299,9 +249,11 @@ def find_best_alpha(X, y, iterations):
     return alpha_dict
 
 alpha_dict = find_best_alpha(X, y, 40000)
-min(alpha_dict,key = alpha_dict.get)
 
-
+best_alpha = None
+# Your code starts here
+best_alpha = min(alpha_dict,key = alpha_dict.get)
+# Your code ends here
 
 # Your code starts here
 fig, ax = plt.subplots()
@@ -312,18 +264,14 @@ alpha_list = []
 for i in range(2,-1,-1):
     alpha= sorted(alpha_dict.items(), key=lambda x: x[1]).pop(i)[0]
     alpha_list.append('α = '+ str(alpha))
-    np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+    np.random.seed(42) 
     theta = np.array(np.random.random(size=X.shape[1]))
     best_theta, J_history = gradient_descent(X ,y, theta, alpha, 40000)
     ax.scatter(np.arange(len(J_history)), np.array(J_history))
 ax.legend(alpha_list);
-    
 
 # Your code ends here
     
-
-a=gradient_descent(X, y, theta, alpha, iterations)
-a[1][-1]
 
 
 pseudo_pred = theta_pinv.dot(X.transpose())
