@@ -1,0 +1,255 @@
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+
+plt.rcParams['figure.figsize'] = (14.0, 8.0) # set default size of plots
+plt.rcParams['image.interpolation'] = 'nearest'
+plt.rcParams['image.cmap'] = 'gray'
+
+# Part 1: Data Preprocessing (5 Points)
+
+# Read comma separated data
+df = pd.read_csv('C:\\Users\\goldi\\OneDrive\\Weizmann\\ML\\hw1\\kc_house_data.csv') # Relative paths are sometimes better than absolute paths.
+# df stands for dataframe, which is the default format for datasets in pandas
+
+### Data Exploration
+
+# Print the first 10 entries of the dataframe. 
+
+# Your code starts here
+df.head(n=10)
+# Your code ends here
+
+# Show the statistics of the dataset. 
+
+# Your code starts here
+df.describe()
+# Your code ends here
+
+
+
+X = None # placeholder for the variables
+y = None # placeholder for the target values
+
+# Your code starts here
+df = df.loc[:,'price':]
+X = np.array(df.loc[:,'bedrooms':])
+y = np.array(df['price'])
+
+# Your code ends here
+
+def preprocess(X, y):
+    """
+    Perform min-max scaling for both the data and the targets.
+    Input:
+    - X: Inputs (n features, m instances).
+    - y: True labels (1 target, m instances).
+
+    Output:
+    - X: The scaled inputs.
+    - y: The scaled labels.
+    """
+    ###########################################################################
+    # TODO: Implement Min-Max Scaling.                                        #
+    ###########################################################################
+def preprocess(X,y):
+    X = (X-X.min(axis = 0)) / (X.max(axis = 0) -X.min(axis = 0))
+    y = (y-y.min())/ (y.max() - y.min())
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return X, y
+
+X, y = preprocess(x, y)
+
+
+## Data Visualization
+
+# Choose one fearture an plot the target price as a function of that feature
+# Your code starts here
+fig, ax = plt.subplots()
+ax.scatter(X[:,2], y)
+ax.set_xlabel('Square Feet')
+ax.set_ylabel("Price")
+ax.set_title('Square feet VS Price')
+
+# Your code ends here
+
+## Bias Trick
+
+# Your code starts here
+X = np.c_[np.ones(len(X)),X ]
+# Your code ends here
+
+
+def compute_cost(X, y, theta):
+    """
+    Computes the average squared difference between an obserbation's actual and
+    predicted values for linear regression.  
+
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - theta: The parameters (weights) of the model being learned.
+
+    Output:
+    - J: the cost associated with the current set of parameters (single number).
+    """
+    
+    J = 0  # Use J for the cost.
+    ###########################################################################
+    # TODO: Implement the MSE cost function.                                  #
+    ###########################################################################
+    m = X.shape[0]; n = X.shape[1]
+    J = (((theta.dot(X.transpose()) - y)**2).sum())/(2*m)
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return J
+
+
+def gradient_descent(X, y, theta, alpha, num_iters):
+    """
+    Learn the parameters of the model using gradient descent. Gradient descent
+    is an optimization algorithm used to minimize a (loss) function by 
+    iteratively moving in the direction of steepest descent as defined by the
+    opposite direction of the gradient. Instead of performing a constant number
+    of iterations, stop the training process once the loss improvement from
+    one iteration to the next is smaller than `1e-8`.
+    
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - theta: The parameters (weights) of the model being learned.
+    - alpha: The learning rate of the model.
+    - num_iters: The number of iterations performed.
+
+    Output:
+    - theta: The learned parameters of the model.
+    - J_history: the loss value in each iteration.
+    """
+    
+    J_history = [] # Use a python list to save cost in every iteration
+    ###########################################################################
+    # TODO: Implement the gradient descent optimization algorithm.            #
+    ###########################################################################
+    J_history =  [compute_cost(X, y, theta)]
+    m = X.shape[0]
+    n = X.shape[1]
+    j=0
+    for f in np.arange(num_iters):
+        if j % 18 == 0:
+            j=0
+        theta[j] = theta[j]-(alpha/m)*((theta.dot(X.transpose()) - y)*X[:,j]).sum()
+        MSE =  compute_cost(X, y, theta) 
+        J_history.append(MSE)
+        J_delta = J_history[f] - J_history[f+1] 
+        if J_delta < 1e-8:
+            print("Bingo" + "- num of iterations",f)
+            break 
+        j=+1
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    
+    return theta, J_history
+
+np.random.seed(42)
+theta = np.random.random(size=X.shape[1])
+iterations = 40000
+alpha = 0.1
+theta, J_history = gradient_descent(X ,y, theta, alpha, iterations)
+
+
+# Your code starts here
+fig, ax = plt.subplots()
+ax.scatter(np.arange(len(J_history)), np.array(J_history))
+ax.set_xlabel('Iteration')
+ax.set_ylabel("MSE")
+ax.set_title('MSE convergence')
+
+
+# Your code ends here
+
+
+def pinv(X, y):
+    """
+    Calculate the optimal values of the parameters using the pseudoinverse
+    approach as you saw in class.
+
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+
+    Outpu:
+    - theta: The optimal parameters of your model.
+
+    ########## DO NOT USE numpy.pinv ##############
+    """
+    pinv_theta = [] # Use a python list to save cost in every iteration
+    ###########################################################################
+    # TODO: Implement the pseudoinverse algorithm.                            #
+    ###########################################################################
+    h=np.matrix(X.T.dot (X))
+    pi=(h.getI().dot(X.T))
+    pinv_theta = np.array(pi.dot(y))
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return pinv_theta
+
+theta_pinv = pinv(X,y)
+J_pinv = compute_cost(X, y, theta_pinv)
+theta_pinv
+
+fig, ax = plt.subplots()
+ax.scatter(np.arange(len(J_history)), np.array(J_history))
+ax.set_xlabel('Iteration')
+ax.set_ylabel("MSE")
+ax.set_title('MSE convergence')
+
+ax.axhline(J_pinv, c='r');
+ax.annotate('pseudo inverse', xy=(0,0), xytext=(2000,J_pinv+0.05), size=14)
+ax.annotate('gradient descent', xy=(0,0), xytext=(700,1), size=14)
+
+
+def find_best_alpha(X, y, iterations):
+    """
+    Iterate over the provided values of alpha and maintain a python 
+    dictionary with alpha as the key and the final loss as the value.
+    For consistent results, use the same theta value for all runs.
+
+    Input:
+    - X: Inputs (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - num_iters: The number of iterations performed.
+
+    Output:
+    - alpha_dict: A python dictionary containing alpha as the 
+                  key and the final loss as the value
+    """
+    
+    alphas = [0.00001, 0.00003, 0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 2, 3]
+    alpha_dict = {}
+    alpha_dict.fromkeys(alphas) 
+    np.random.seed(42)
+    theta = np.random.random(size=X.shape[1])
+    ###########################################################################
+    # TODO: Implement the function.                                           #
+    ###########################################################################
+    for alpha in alphas:
+        alpha_dict[alpha]=gradient_descent(X, y, theta, alpha, iterations)[1][-1]
+        
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return alpha_dict
+
+alpha_dict = find_best_alpha(X, y, 40000)
+
+a=gradient_descent(X, y, theta, alpha, iterations)
+a[1][-1]
