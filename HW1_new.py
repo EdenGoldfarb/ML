@@ -111,6 +111,53 @@ def compute_cost(X, y, theta):
     ###########################################################################
     return J
 
+def gradient_descent(X, y, theta_rand, alpha, num_iters):
+    """
+    Learn the parameters of the model using gradient descent. Gradient descent
+    is an optimization algorithm used to minimize a (loss) function by 
+    iteratively moving in the direction of steepest descent as defined by the
+    opposite direction of the gradient. Instead of performing a constant number
+    of iterations, stop the training process once the loss improvement from
+    one iteration to the next is smaller than `1e-8`.
+    
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - theta: The parameters (weights) of the model being learned.
+    - alpha: The learning rate of the model.
+    - num_iters: The number of iterations performed.
+
+    Output:
+    - theta: The learned parameters of the model.
+    - J_history: the loss value in each iteration.
+    """
+    
+    J_history = [] # Use a python list to save cost in every iteration
+    theta = []
+    ###########################################################################
+    # TODO: Implement the gradient descent optimization algorithm.            #
+    ###########################################################################
+    J_history =  [compute_cost(X, y, theta_rand)]
+    m = X.shape[0]
+    n = X.shape[1]
+    j=0
+    for f in np.arange(num_iters):
+        if j % 18 == 0:
+            j=0
+        theta_rand[j] = theta_rand[j]-(alpha/m)*((theta_rand.dot(X.transpose()) - y)*X[:,j]).sum()
+        MSE =  compute_cost(X, y, theta_rand) 
+        J_history.append(MSE)
+        J_delta = J_history[f] - J_history[f+1] 
+        if J_delta < 1e-8:
+            # print("Bingo" + "- num of iterations",f)
+            break 
+        j=+1
+    theta = np.copy(theta_rand)
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    
+    return theta, J_history
 
 def gradient_descent(X, y, theta, alpha, num_iters):
     """
@@ -242,6 +289,8 @@ def find_best_alpha(X, y, iterations):
     # TODO: Implement the function.                                           #
     ###########################################################################
     for alpha in alphas:
+        np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+        theta = np.array(np.random.random(size=X.shape[1]))
         alpha_dict[alpha]=gradient_descent(X, y, theta, alpha, iterations)[1][-1]
         
     ###########################################################################
@@ -250,6 +299,81 @@ def find_best_alpha(X, y, iterations):
     return alpha_dict
 
 alpha_dict = find_best_alpha(X, y, 40000)
+min(alpha_dict,key = alpha_dict.get)
+
+
+
+# Your code starts here
+fig, ax = plt.subplots()
+ax.set_xlabel('Iteration')
+ax.set_ylabel("MSE")
+ax.set_title('MSE convergence')
+alpha_list = []
+for i in range(2,-1,-1):
+    alpha= sorted(alpha_dict.items(), key=lambda x: x[1]).pop(i)[0]
+    alpha_list.append('α = '+ str(alpha))
+    np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+    theta = np.array(np.random.random(size=X.shape[1]))
+    best_theta, J_history = gradient_descent(X ,y, theta, alpha, 40000)
+    ax.scatter(np.arange(len(J_history)), np.array(J_history))
+ax.legend(alpha_list);
+    
+
+# Your code ends here
+    
 
 a=gradient_descent(X, y, theta, alpha, iterations)
 a[1][-1]
+
+
+pseudo_pred = theta_pinv.dot(X.transpose())
+descent_pred = best_theta.dot(X.transpose())
+fig, ax = plt.subplots(1, 2, figsize=(14,5))
+ax[0].scatter(y, descent_pred)
+ax[1].scatter(pseudo_pred, descent_pred)
+ax[0].set_ylabel('Gradient Descent Prediction')
+ax[0].set_xlabel("Targets")
+ax[1].set_ylabel('Gradient Descent Prediction')
+ax[1].set_xlabel("Pseudo-Inverse Prediction")
+ax[0].set_title('Targets VS GD')
+ax[1].set_title('PINV VS GD')
+
+
+prices_list = [y,descent_pred,pseudo_pred]
+legends = ["Target","Prediction","Pinv"]
+fig, axes = plt.subplots(2,2, figsize=(16,8))
+axes[0,0].hist(prices_list, bins = 3);
+axes[0,1].hist(prices_list, bins = 9);
+axes[1,0].hist(prices_list, bins = 20);
+axes[1,1].hist(prices_list, bins = 40);
+axes[0,0].set_xlabel("Scaled Price")
+axes[0,1].set_xlabel("Scaled Price")
+axes[1,0].set_xlabel("Scaled Price")
+axes[1,1].set_xlabel("Scaled Price")
+axes[0,0].legend(legends)
+axes[0,1].legend(legends)
+axes[1,0].legend(legends)
+axes[1,1].legend(legends)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
