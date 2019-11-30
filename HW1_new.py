@@ -305,6 +305,115 @@ axes[1,1].legend(legends)
 
 
 
+import itertools as itr
+
+
+triplets = list(itr.combinations(range(1,X.shape[1]), 3))
+
+type(triplets)
+
+
+df_2 = df.loc[:,'bedrooms':]
+
+train=df_2.sample(frac=0.8,random_state=200) 
+test=df_2.drop(train.index)
+
+train_idx = train.index
+test_idx  = test.index
+
+X
+X_train = X[train_idx]
+X_test  = X[test_idx]
+y_train = y[train_idx]
+y_test  = y[test_idx]
+
+
+def find_best_triplet(X_train, y_train, X_test, y_test, triplets, alpha, num_iter):
+    """
+    Iterate over all possible triplets and find the triplet that best 
+    minimizes the cost function. You should first preprocess the data 
+    and obtain a array containing the columns corresponding to the
+    triplet. Don't forget the bias trick.
+
+    Input:
+    - X_train: training dataset.
+    - y_train: training labels.
+    - X_test: testinging dataset.
+    - y_test: testing labels.
+    - triplets: a list of three features in X.
+    - alpha: The value of the best alpha previously found.
+    - num_iters: The number of updates performed.
+
+    Output:
+    - The best triplet.
+    """
+    best_triplet = None
+    jz = []
+    np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+    theta = np.array(np.random.random(size=4))
+    ###########################################################################
+    # TODO: Implement the function.                                           #
+    ###########################################################################
+    for triple in triplets:
+        triple = (0,)+triple
+        thetaco = gradient_descent(X_train[:,triple],y_train,theta,best_alpha,num_iter)[0]
+        jtriple = compute_cost(X_test[:,triple],y_test,thetaco)
+        jz.append(jtriple)
+    
+    best_triplet = triplets[jz.index(max(jz))]
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return best_triplet
+
+
+find_best_triplet(X_train, y_train, X_test, y_test, triplets, alpha=best_alpha, num_iter=20000)
+
+colnames = df.columns
+num_iter = 20000
+np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+theta = np.array(np.random.random(size=X.shape[1]))
+best_feature_index = [0]
+jz = []
+
+features_ind = np.arange(1,X.shape[1])
+for i in range(3):
+    for j in features_ind:
+       best_feature_index.append(j)
+       thetaco = gradient_descent(X_train[:,best_feature_index],y_train,theta[best_feature_index],best_alpha,num_iter)[0]
+       jz.append(compute_cost(X_test[:,best_feature_index],y_test,thetaco))
+       best_feature_index.pop()
+       
+    best_feature_index.append(features_ind[jz.index(min(jz))])
+    features_ind = np.delete(features_ind,jz.index(min(jz)))
+    jz=[]
+colnames[best_feature_index[1:]]
+
+
+jz = []
+num_iter = 20000
+features_ind = np.arange(1,X.shape[1])
+for i in range(X.shape[1]-4):
+        for j in features_ind:
+            thetaco = gradient_descent(X_train[:,np.append(0,np.delete(features_ind,np.where(features_ind==j)))], y_train,theta[np.append(0,np.delete(features_ind,np.where(features_ind==j)))],best_alpha,num_iter)[0]
+            jz.append(compute_cost(X_test[:,np.append(0,np.delete(features_ind,np.where(features_ind==j)))],y_test,thetaco))
+            
+        features_ind = np.delete(features_ind,jz.index(max(jz)))
+        jz=[]
+colnames[features_ind]
+        
+    
+    
+
+
+
+
+
+
+
+
+
+
 
 
 
