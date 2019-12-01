@@ -108,6 +108,53 @@ def compute_cost(X, y, theta):
     #                             END OF YOUR CODE                            #
     ###########################################################################
     return J
+"""
+def gradient_descent(X, y, theta, alpha, num_iters):
+    
+    Learn the parameters of the model using gradient descent. Gradient descent
+    is an optimization algorithm used to minimize a (loss) function by 
+    iteratively moving in the direction of steepest descent as defined by the
+    opposite direction of the gradient. Instead of performing a constant number
+    of iterations, stop the training process once the loss improvement from
+    one iteration to the next is smaller than `1e-8`.
+    
+    Input:
+    - X: Inputs  (n features over m instances).
+    - y: True labels (1 value over m instances).
+    - theta: The parameters (weights) of the model being learned.
+    - alpha: The learning rate of the model.
+    - num_iters: The number of iterations performed.
+
+    Output:
+    - theta: The learned parameters of the model.
+    - J_history: the loss value in each iteration.
+    
+    
+    J_history = [] # Use a python list to save cost in every iteration
+    ###########################################################################
+    # TODO: Implement the gradient descent optimization algorithm.            #
+    ###########################################################################
+    J_history =  [compute_cost(X, y, theta)]
+    m = X.shape[0]
+    j=0
+    for f in np.arange(num_iters):
+        if j % 18 == 0:
+            j=0
+        theta[j] = theta[j]-(alpha/m)*((theta.dot(X.transpose()) - y)*X[:,j]).sum()
+        MSE =  compute_cost(X, y, theta) 
+        J_history.append(MSE)
+        J_delta = J_history[f] - J_history[f+1] 
+        if J_delta < 1e-8:
+            #print("Bingo" + "- num of iterations",f)
+            break 
+        j=+1
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    
+    return theta, J_history
+"""
+
 
 def gradient_descent(X, y, theta, alpha, num_iters):
     """
@@ -136,23 +183,21 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     ###########################################################################
     J_history =  [compute_cost(X, y, theta)]
     m = X.shape[0]
-    j=0
     for f in np.arange(num_iters):
-        if j % 18 == 0:
-            j=0
-        theta[j] = theta[j]-(alpha/m)*((theta.dot(X.transpose()) - y)*X[:,j]).sum()
+        derivative = np.dot(X.transpose(),(np.dot(X,theta) - y))
+        theta = theta - alpha*(1/m)*(derivative)
         MSE =  compute_cost(X, y, theta) 
         J_history.append(MSE)
         J_delta = J_history[f] - J_history[f+1] 
         if J_delta < 1e-8:
             #print("Bingo" + "- num of iterations",f)
             break 
-        j=+1
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     
     return theta, J_history
+
 
 
 np.random.seed(42)
@@ -305,12 +350,11 @@ axes[1,1].legend(legends)
 
 
 
-import itertools as itr
+import itertools as it
 
 
-triplets = list(itr.combinations(range(1,X.shape[1]), 3))
+triplets = list(it.combinations(range(1,X.shape[1]), 3))
 
-type(triplets)
 
 
 df_2 = df.loc[:,'bedrooms':]
@@ -321,7 +365,7 @@ test=df_2.drop(train.index)
 train_idx = train.index
 test_idx  = test.index
 
-X
+
 X_train = X[train_idx]
 X_test  = X[test_idx]
 y_train = y[train_idx]
@@ -390,6 +434,9 @@ for i in range(3):
 colnames[best_feature_index[1:]]
 
 
+
+
+
 jz = []
 num_iter = 20000
 features_ind = np.arange(1,X.shape[1])
@@ -407,11 +454,14 @@ colnames[features_ind]
 
 
 
+np.random.seed(42) # seeding the random number generator allows us to obtain reproducible results
+theta = np.array(np.random.random(size=X.shape[1]))
 
+j=1
+theta[j] = theta[j]-(alpha/X.shape[0])*((theta.dot(X.transpose()) - y)*X[:,j]).sum()
 
-
-
-
+derivative = np.dot(X[:,j].transpose(),(np.dot(X,theta) - y))
+theta[j] = theta[j] - alpha*(1/X.shape[j])*(derivative)
 
 
 
